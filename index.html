@@ -372,6 +372,9 @@ select{background:var(--card);color:var(--text);}
         <div class="page-title" id="pageTitle">ড্যাশবোর্ড</div>
       </div>
       <div class="topbar-right">
+        <button id="pwaInstallBtn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;padding:7px 14px;background:var(--gold);color:var(--green-dark);border:none;border-radius:20px;font-family:var(--font-bn);font-size:.8rem;font-weight:700;cursor:pointer;">
+          📲 ইনস্টল করুন
+        </button>
         <div class="date-badge" id="dateBadge"></div>
         <button class="notif-btn" onclick="showPage('reports')">🔔<span class="notif-dot" id="notifDot" style="display:none"></span></button>
       </div>
@@ -1956,6 +1959,44 @@ function exportCSV() {
 
 function exportReport() { exportCSV(); }
 
+// ── PWA INSTALL - Enhanced like DWM ──
+let deferredPromptEvent = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPromptEvent = e;
+  // Show install button in topbar
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'flex';
+  // Also show in auth screen
+  const authBtn = document.getElementById('installBtn');
+  if (authBtn) authBtn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  toast('অ্যাপ সফলভাবে ইনস্টল হয়েছে! 🎉', 'success');
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'none';
+  deferredPromptEvent = null;
+});
+
+function installPWA() {
+  if (deferredPromptEvent) {
+    deferredPromptEvent.prompt();
+    deferredPromptEvent.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        toast('ইনস্টল হচ্ছে...', 'success');
+      }
+      deferredPromptEvent = null;
+      const btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'none';
+    });
+  } else {
+    // Fallback for iOS or if prompt not available
+    toast('Chrome মেনু (⋮) → "Add to Home screen" থেকে ইনস্টল করুন', 'warning');
+  }
+}
+
 // ── ROLE-BASED NAV ──
 function applyRoleNav() {
   const role = window.currentUser?.role;
@@ -1991,20 +2032,16 @@ window.addEventListener('beforeinstallprompt', e => {
 // ── PWA ──
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
-function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(result => {
-      if (result.outcome === 'accepted') toast('অ্যাপ ইনস্টল হচ্ছে!', 'success');
-      deferredPrompt = null;
-      document.getElementById('installBtn').style.display = 'none';
-    });
-  }
-}
-
 // ── INIT ──
 updateDate();
 if (localStorage.getItem('adc_dark') === 'true') { darkMode = true; document.body.classList.add('dark'); document.getElementById('darkToggle').classList.add('on'); }
+
+// ── PWA Service Worker ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => {
+    console.log('SW registered');
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>
