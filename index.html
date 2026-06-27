@@ -287,29 +287,29 @@ select{background:var(--card);color:var(--text);}
       <h1>ADC Super Shop</h1>
       <p>আস্থা ডিজিটাল চেইন • রাজশাহী</p>
     </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')" id="tabLogin">লগইন</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')" id="tabRegister">নতুন একাউন্ট</button>
-    </div>
-    <!-- Login -->
+    <!-- Login only - Register disabled -->
     <div id="loginForm">
       <div class="form-group"><label>ইমেইল</label><input type="email" id="loginEmail" placeholder="আপনার ইমেইল"></div>
-      <div class="form-group"><label>পাসওয়ার্ড</label><input type="password" id="loginPass" placeholder="পাসওয়ার্ড"></div>
-      <button class="btn-primary" onclick="doLogin()">লগইন করুন</button>
-      <p style="text-align:center;font-size:.75rem;color:var(--gray-400);margin-top:10px;cursor:pointer;" onclick="forgotPassword()">পাসওয়ার্ড ভুলে গেছেন?</p>
-    </div>
-    <!-- Register -->
-    <div id="registerForm" style="display:none">
-      <div class="form-group"><label>পূর্ণ নাম</label><input type="text" id="regName" placeholder="আপনার নাম"></div>
-      <div class="form-group"><label>ইমেইল</label><input type="email" id="regEmail" placeholder="আপনার ইমেইল"></div>
-      <div class="form-group"><label>পাসওয়ার্ড</label><input type="password" id="regPass" placeholder="কমপক্ষে ৬ অক্ষর"></div>
-      <div class="form-group"><label>রোল</label>
-        <select id="regRole"><option value="admin">Admin</option><option value="manager">Manager</option><option value="cashier">Cashier</option></select>
+      <div class="form-group">
+        <label>পাসওয়ার্ড</label>
+        <div style="position:relative;">
+          <input type="password" id="loginPass" placeholder="পাসওয়ার্ড" style="width:100%;padding:10px 40px 10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-bn);font-size:.9rem;background:var(--card);color:var(--text);outline:none;">
+          <button type="button" onclick="togglePassView('loginPass','eyeLogin')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;color:var(--gray-400);" id="eyeLogin">👁️</button>
+        </div>
       </div>
-      <button class="btn-primary" onclick="doRegister()">একাউন্ট তৈরি করুন</button>
+      <button class="btn-primary" onclick="doLogin()">লগইন করুন</button>
+      <p style="text-align:center;font-size:.8rem;color:var(--green);margin-top:12px;cursor:pointer;font-weight:500;" onclick="showForgotForm()">🔑 পাসওয়ার্ড ভুলে গেছেন?</p>
+    </div>
+    <!-- Forgot Password Form -->
+    <div id="forgotForm" style="display:none">
+      <p style="font-size:.85rem;color:var(--sub);margin-bottom:14px;">আপনার ইমেইলে রিসেট লিংক পাঠানো হবে।</p>
+      <div class="form-group"><label>ইমেইল</label><input type="email" id="forgotEmail" placeholder="আপনার ইমেইল"></div>
+      <button class="btn-primary" onclick="forgotPassword()">রিসেট লিংক পাঠান</button>
+      <p style="text-align:center;font-size:.8rem;color:var(--green);margin-top:10px;cursor:pointer;" onclick="showLoginForm()">← লগইনে ফিরে যান</p>
     </div>
     <p class="auth-err" id="authErr"></p>
     <p class="auth-msg" id="authMsg"></p>
+    <button id="installBtn" onclick="installPWA()" style="display:none;width:100%;margin-top:14px;padding:10px;background:var(--gold);color:var(--green-dark);border:none;border-radius:var(--radius-sm);font-family:var(--font-bn);font-size:.88rem;font-weight:700;cursor:pointer;align-items:center;justify-content:center;gap:6px;">📲 অ্যাপ হিসেবে ইনস্টল করুন</button>
   </div>
 </div>
 
@@ -572,30 +572,82 @@ select{background:var(--card);color:var(--text);}
 
       <!-- ── SETTINGS ── -->
       <div class="page" id="page-settings">
+        <div id="nonAdminWarning" style="display:none;background:var(--red-light);color:var(--red);padding:14px 18px;border-radius:var(--radius);margin-bottom:16px;font-size:.9rem;border-left:4px solid var(--red);">
+          ⚠️ শুধুমাত্র Admin এই সেটিংস পরিবর্তন করতে পারবে।
+        </div>
+        <div id="adminSettings">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;">
-          <div class="card"><div class="card-header"><div class="card-title">শপ তথ্য</div></div>
+          <!-- Shop Info -->
+          <div class="card"><div class="card-header"><div class="card-title">🏪 শপ তথ্য</div></div>
             <div class="card-body">
               <div class="fg"><label>শপের নাম</label><input type="text" id="shopName" value="ADC Super Shop"></div>
               <div class="fg"><label>ঠিকানা</label><input type="text" id="shopAddr" value="রাজশাহী, বাংলাদেশ"></div>
               <div class="fg"><label>ফোন</label><input type="text" id="shopPhone" value="+880-"></div>
               <div class="fg"><label>ট্যাক্স (%)</label><input type="number" id="shopTax" value="0" min="0" max="100"></div>
-              <button class="btn btn-green" onclick="saveSettings()">সংরক্ষণ</button>
+              <button class="btn btn-green" onclick="saveSettings()">সংরক্ষণ করুন</button>
             </div>
           </div>
-          <div class="card"><div class="card-header"><div class="card-title">পাসওয়ার্ড পরিবর্তন</div></div>
+          <!-- Logo Upload -->
+          <div class="card"><div class="card-header"><div class="card-title">🖼️ লোগো পরিবর্তন</div></div>
             <div class="card-body">
-              <div class="fg"><label>নতুন পাসওয়ার্ড</label><input type="password" id="newPass" placeholder="কমপক্ষে ৬ অক্ষর"></div>
+              <div style="text-align:center;margin-bottom:14px;">
+                <div id="logoPreviewWrap" style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--green-dark),var(--green-mid));display:flex;align-items:center;justify-content:center;margin:0 auto 10px;overflow:hidden;font-size:2.5rem;">🛒</div>
+                <div style="font-size:.75rem;color:var(--gray-400)">বর্তমান লোগো</div>
+              </div>
+              <label class="img-upload-btn" for="logoFile" style="width:100%;justify-content:center;margin-bottom:8px;">📷 নতুন লোগো আপলোড</label>
+              <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="uploadLogo(this)">
+              <div id="logoStatus" style="font-size:.75rem;color:var(--gray-400);text-align:center;margin-top:6px;"></div>
+              <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="removeLogo()">🗑️ লোগো সরান</button>
+            </div>
+          </div>
+          <!-- Add User -->
+          <div class="card"><div class="card-header"><div class="card-title">👤 নতুন ব্যবহারকারী যোগ</div></div>
+            <div class="card-body">
+              <div class="fg"><label>পূর্ণ নাম *</label><input type="text" id="newUserName" placeholder="নাম"></div>
+              <div class="fg"><label>ইমেইল *</label><input type="email" id="newUserEmail" placeholder="email@adc.com"></div>
+              <div class="fg">
+                <label>পাসওয়ার্ড *</label>
+                <div style="position:relative;">
+                  <input type="password" id="newUserPass" placeholder="কমপক্ষে ৬ অক্ষর" style="width:100%;padding:9px 40px 9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-bn);font-size:.87rem;background:var(--card);color:var(--text);outline:none;">
+                  <button type="button" onclick="togglePassView('newUserPass','eyeNew')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);" id="eyeNew">👁️</button>
+                </div>
+              </div>
+              <div class="fg"><label>রোল</label>
+                <select id="newUserRole">
+                  <option value="manager">Manager</option>
+                  <option value="cashier">Cashier</option>
+                </select>
+              </div>
+              <button class="btn btn-green" style="width:100%;" onclick="addNewUser()">➕ ব্যবহারকারী যোগ করুন</button>
+            </div>
+          </div>
+          <!-- User List -->
+          <div class="card"><div class="card-header"><div class="card-title">👥 ব্যবহারকারী তালিকা</div></div>
+            <div class="card-body" id="userListBody"><div class="loading"><div class="spinner"></div></div></div>
+          </div>
+          <!-- Password Change -->
+          <div class="card"><div class="card-header"><div class="card-title">🔑 পাসওয়ার্ড পরিবর্তন</div></div>
+            <div class="card-body">
+              <div class="fg">
+                <label>নতুন পাসওয়ার্ড</label>
+                <div style="position:relative;">
+                  <input type="password" id="newPass" placeholder="কমপক্ষে ৬ অক্ষর" style="width:100%;padding:9px 40px 9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-bn);font-size:.87rem;background:var(--card);color:var(--text);outline:none;">
+                  <button type="button" onclick="togglePassView('newPass','eyeChange')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);" id="eyeChange">👁️</button>
+                </div>
+              </div>
               <div class="fg"><label>নিশ্চিত করুন</label><input type="password" id="confPass" placeholder="আবার দিন"></div>
               <button class="btn btn-green" onclick="changePassword()">পরিবর্তন করুন</button>
             </div>
           </div>
-          <div class="card"><div class="card-header"><div class="card-title">ডেটা</div></div>
+          <!-- Data -->
+          <div class="card"><div class="card-header"><div class="card-title">📦 ডেটা ম্যানেজমেন্ট</div></div>
             <div class="card-body">
               <button class="btn btn-outline" style="width:100%;margin-bottom:8px;" onclick="exportData()">📥 JSON এক্সপোর্ট</button>
               <button class="btn btn-outline" style="width:100%;margin-bottom:8px;" onclick="exportCSV()">📊 CSV এক্সপোর্ট</button>
-              <p style="font-size:.75rem;color:var(--gray-400);margin-top:8px;">Firebase Realtime Database এ সংযুক্ত ✅</p>
+              <p style="font-size:.75rem;color:var(--gray-400);margin-top:8px;">Firebase Realtime Database ✅</p>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -941,16 +993,28 @@ function updateDate() {
   if (sm) sm.value = ym;
 }
 
-// ── AUTH ──
-function switchAuthTab(tab) {
-  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+// ── PASSWORD TOGGLE ──
+function togglePassView(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!input || !btn) return;
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+
+// ── FORGOT PASSWORD UI ──
+function showForgotForm() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('forgotForm').style.display = 'block';
   document.getElementById('authErr').style.display = 'none';
   document.getElementById('authMsg').style.display = 'none';
 }
+function showLoginForm() {
+  document.getElementById('forgotForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+}
 
+// ── AUTH ──
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPass').value;
@@ -962,33 +1026,17 @@ async function doLogin() {
   }
 }
 
-async function doRegister() {
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const role = document.getElementById('regRole').value;
-  if (!name || !email || !pass) return showAuthErr('সব তথ্য দিন');
-  if (pass.length < 6) return showAuthErr('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর');
-  try {
-    const cred = await window.fbCreateUser(window.fbAuth, email, pass);
-    await window.fbSet(window.fbRef(window.fbDb, 'users/' + cred.user.uid), { name, email, role, createdAt: Date.now() });
-    toast('একাউন্ট তৈরি হয়েছে!', 'success');
-  } catch(e) {
-    showAuthErr(e.code === 'auth/email-already-in-use' ? 'এই ইমেইল ইতোমধ্যে ব্যবহৃত!' : 'সমস্যা হয়েছে: ' + e.message);
-  }
-}
-
 async function doLogout() {
   await window.fbSignOut(window.fbAuth);
 }
 
 async function forgotPassword() {
-  const email = document.getElementById('loginEmail').value.trim();
+  const email = document.getElementById('forgotEmail').value.trim();
   if (!email) return showAuthErr('ইমেইল দিন');
   try {
     await window.fbResetPass(window.fbAuth, email);
-    showAuthMsg('রিসেট লিংক পাঠানো হয়েছে!');
-  } catch(e) { showAuthErr('সমস্যা হয়েছে'); }
+    showAuthMsg('✓ রিসেট লিংক পাঠানো হয়েছে! ইমেইল চেক করুন।');
+  } catch(e) { showAuthErr('ইমেইল পাওয়া যায়নি'); }
 }
 
 async function changePassword() {
@@ -999,7 +1047,101 @@ async function changePassword() {
   try {
     await window.fbUpdatePass(window.fbAuth.currentUser, np);
     toast('পাসওয়ার্ড পরিবর্তন হয়েছে', 'success');
-  } catch(e) { toast('সমস্যা হয়েছে', 'error'); }
+    document.getElementById('newPass').value = '';
+    document.getElementById('confPass').value = '';
+  } catch(e) { toast('সমস্যা হয়েছে — আবার লগইন করুন', 'error'); }
+}
+
+// ── ADD NEW USER (Admin only) ──
+async function addNewUser() {
+  if (window.currentUser?.role !== 'admin') return toast('শুধু Admin পারবে', 'error');
+  const name = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const pass = document.getElementById('newUserPass').value;
+  const role = document.getElementById('newUserRole').value;
+  if (!name || !email || !pass) return toast('সব তথ্য দিন', 'error');
+  if (pass.length < 6) return toast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর', 'error');
+  try {
+    const cred = await window.fbCreateUser(window.fbAuth, email, pass);
+    await window.fbSet(window.fbRef(window.fbDb, 'users/' + cred.user.uid), { name, email, role, createdAt: Date.now() });
+    // Re-sign in as admin (Firebase logs in as new user after createUser)
+    const adminEmail = window.currentUser.email;
+    toast(`✓ ${name} (${role}) যোগ হয়েছে`, 'success');
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPass').value = '';
+    loadUserList();
+  } catch(e) {
+    toast(e.code === 'auth/email-already-in-use' ? 'এই ইমেইল ইতোমধ্যে ব্যবহৃত!' : 'সমস্যা: ' + e.message, 'error');
+  }
+}
+
+// ── USER LIST ──
+async function loadUserList() {
+  const body = document.getElementById('userListBody');
+  if (!body) return;
+  try {
+    const snap = await window.fbGet(window.fbRef(window.fbDb, 'users'));
+    const users = snap.val() || {};
+    const list = Object.entries(users);
+    if (!list.length) { body.innerHTML = '<p style="color:var(--gray-400);font-size:.85rem">কোনো ব্যবহারকারী নেই</p>'; return; }
+    body.innerHTML = list.map(([uid, u]) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-size:.87rem;font-weight:600">${u.name||'—'}</div>
+          <div style="font-size:.72rem;color:var(--gray-400)">${u.email} · <span class="badge ${u.role==='admin'?'badge-green':u.role==='manager'?'badge-blue':'badge-gold'}">${u.role||'—'}</span></div>
+        </div>
+        ${uid !== window.currentUser?.uid ? `<button class="btn btn-red btn-sm" onclick="deleteUser('${uid}')">🗑️</button>` : '<span style="font-size:.72rem;color:var(--green)">আপনি</span>'}
+      </div>`).join('');
+  } catch(e) { body.innerHTML = '<p style="color:var(--gray-400)">লোড করা যায়নি</p>'; }
+}
+
+async function deleteUser(uid) {
+  if (!confirm('এই ব্যবহারকারী মুছবেন?')) return;
+  await window.fbRemove(window.fbRef(window.fbDb, 'users/' + uid));
+  toast('মুছে গেছে', 'warning');
+  loadUserList();
+}
+
+// ── LOGO UPLOAD ──
+async function uploadLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('logoStatus').textContent = 'আপলোড হচ্ছে...';
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', window.CLD_PRESET);
+  fd.append('folder', 'adc_shop_logo');
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${window.CLD_CLOUD}/image/upload`, { method:'POST', body:fd });
+    const data = await res.json();
+    const url = data.secure_url;
+    // Save to Firebase
+    await window.fbSet(window.fbRef(window.fbDb, 'settings/logoUrl'), url);
+    localStorage.setItem('adc_logo', url);
+    applyLogo(url);
+    document.getElementById('logoStatus').textContent = '✓ লোগো আপলোড সম্পন্ন';
+    toast('লোগো পরিবর্তন হয়েছে', 'success');
+  } catch(e) { document.getElementById('logoStatus').textContent = '✕ ব্যর্থ হয়েছে'; toast('আপলোড ব্যর্থ', 'error'); }
+}
+
+function applyLogo(url) {
+  const wrap = document.getElementById('logoPreviewWrap');
+  if (wrap) { wrap.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='🛒'">`; }
+  // Apply to auth screen
+  const authLogo = document.querySelector('.logo-circle');
+  if (authLogo && url) authLogo.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.textContent='🛒'">`;
+  // Apply to sidebar
+  const sIcon = document.querySelector('.s-icon');
+  if (sIcon && url) sIcon.innerHTML = `<img src="${url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='🛒'">`;
+}
+
+async function removeLogo() {
+  await window.fbSet(window.fbRef(window.fbDb, 'settings/logoUrl'), null);
+  localStorage.removeItem('adc_logo');
+  const wrap = document.getElementById('logoPreviewWrap');
+  if (wrap) wrap.innerHTML = '🛒';
+  toast('লোগো সরানো হয়েছে', 'warning');
 }
 
 function showAuthErr(msg) { const el = document.getElementById('authErr'); el.textContent = msg; el.style.display = 'block'; }
@@ -1022,6 +1164,17 @@ function showPage(page) {
   if (page === 'reports') renderReports();
   if (page === 'pos') renderPosGrid();
   if (page === 'attendance') renderAttendance();
+  if (page === 'settings') {
+    const isAdmin = window.currentUser?.role === 'admin';
+    document.getElementById('nonAdminWarning').style.display = isAdmin ? 'none' : 'block';
+    document.getElementById('adminSettings').style.display = isAdmin ? 'block' : 'none';
+    if (isAdmin) loadUserList();
+  }
+  // Role-based nav restrictions
+  if (['settings','branches'].includes(page) && window.currentUser?.role !== 'admin') {
+    toast('শুধু Admin এই পেজ দেখতে পারবে', 'error');
+    showPage('dashboard'); return;
+  }
   closeSidebar();
 }
 
@@ -1091,6 +1244,13 @@ window.renderAll = function() {
   if (localStorage.getItem('adc_dark') === 'true') { darkMode = true; document.body.classList.add('dark'); document.getElementById('darkToggle').classList.add('on'); }
   const savedLang = localStorage.getItem('adc_lang');
   if (savedLang) setLang(savedLang);
+  // Load logo from Firebase
+  window.fbGet(window.fbRef(window.fbDb, 'settings/logoUrl')).then(snap => {
+    const url = snap.val();
+    if (url) { localStorage.setItem('adc_logo', url); applyLogo(url); }
+  }).catch(() => {});
+  // Role-based nav hide
+  applyRoleNav();
 };
 
 // ── DASHBOARD ──
@@ -1781,8 +1941,51 @@ function exportCSV() {
 
 function exportReport() { exportCSV(); }
 
+// ── ROLE-BASED NAV ──
+function applyRoleNav() {
+  const role = window.currentUser?.role;
+  if (role === 'admin') return; // admin sees everything
+  // Hide admin-only nav items
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const onclick = n.getAttribute('onclick') || '';
+    if (onclick.includes("'settings'") || onclick.includes("'branches'")) {
+      n.style.display = 'none';
+    }
+  });
+  // Cashier: also hide expenses, purchase, staff management
+  if (role === 'cashier') {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      const onclick = n.getAttribute('onclick') || '';
+      if (onclick.includes("'expenses'") || onclick.includes("'purchase'") || onclick.includes("'staff'") || onclick.includes("'attendance'") || onclick.includes("'reports'")) {
+        n.style.display = 'none';
+      }
+    });
+  }
+}
+
+// ── PWA INSTALL ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button if exists
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'flex';
+});
+
 // ── PWA ──
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(result => {
+      if (result.outcome === 'accepted') toast('অ্যাপ ইনস্টল হচ্ছে!', 'success');
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+  }
+}
 
 // ── INIT ──
 updateDate();
